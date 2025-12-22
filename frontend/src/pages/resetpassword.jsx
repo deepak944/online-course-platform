@@ -1,71 +1,58 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function ResetPassword() {
-  const { token } = useParams();
-  const navigate = useNavigate();
+  const { token } = useParams()
+  const navigate = useNavigate()
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
 
-  // 🔐 Verify token when page loads
   useEffect(() => {
     fetch(`${API_URL}/api/auth/reset-password/${token}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Invalid or expired link");
-        return res.json();
+      .then(res => {
+        if (!res.ok) throw new Error()
+        return res.json()
       })
       .then(() => setLoading(false))
       .catch(() => {
-        setError("Server may be waking up please refresh and try again");
-        setLoading(false);
-      });
-  }, [token]);
+        setError("Server may be waking up. Please refresh and try again.")
+        setLoading(false)
+      })
+  }, [token])
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
+      setError("Passwords do not match")
+      return
     }
 
     try {
       const res = await fetch(`${API_URL}/api/auth/update-password`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          new_password: password,
-        }),
-      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, new_password: password })
+      })
 
       if (res.ok) {
-        alert("Password updated successfully");
-        navigate("/login");
+        alert("Password updated successfully")
+        navigate("/login")
       } else {
-        setError("Failed to update password");
+        setError("Failed to update password")
       }
-    } catch (err) {
-      setError("Server error. Please try again.");
+    } catch {
+      setError("Server error. Try again.")
     }
-  };
+  }
 
-  if (loading)
-    return <p className="text-center mt-10">Verifying link...</p>;
-
-  if (error)
-    return (
-      <p className="text-center text-red-500 mt-10">
-        {error}
-      </p>
-    );
+  if (loading) return <p className="text-center mt-10">Verifying link...</p>
+  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -105,7 +92,7 @@ function ResetPassword() {
         </button>
       </form>
     </div>
-  );
+  )
 }
 
-export default ResetPassword;
+export default ResetPassword

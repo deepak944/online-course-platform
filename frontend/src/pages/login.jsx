@@ -1,111 +1,95 @@
-import { Routes, Route, Navigate } from "react-router-dom"
+import { useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
 
-import { useState, useEffect } from "react"
+const API_URL = import.meta.env.VITE_API_URL;
 
+function Login({ setIsLoggedIn }) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const navigate = useNavigate()
 
-import Login from "./pages/login"
-import Register from "./pages/register"
-import Courses from "./pages/courses"
-import CourseDetails from "./pages/coursedetails"
-import MyCourses from "./pages/mycourses"
-import Navbar from "./components/navbar"
-import ForgotPassword from "./pages/forgotpassword"
-import ResetPassword from "./pages/resetpassword"
+  const handleLogin = async (e) => {
+    e.preventDefault()
 
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("currentUser")
-  )
+      const data = await res.json()
 
-  const currentUser = localStorage.getItem("currentUser")
+      if (!res.ok) {
+        alert(data.message || "Invalid email or password")
+        return
+      }
 
-  const [enrolledCourses, setEnrolledCourses] = useState([])
+      localStorage.setItem("token", data.access_token)
+      localStorage.setItem("currentUser", email)
 
-useEffect(() => {
-  const currentUser = localStorage.getItem("currentUser")
-  if (!currentUser) {
-    setEnrolledCourses([])
-    return
+      const userCourses =
+        JSON.parse(localStorage.getItem(`enrolledCourses_${email}`)) || []
+
+      localStorage.setItem(
+        "currentEnrolledCourses",
+        JSON.stringify(userCourses)
+      )
+
+      setIsLoggedIn(true)
+      navigate("/courses")
+    } catch (err) {
+      alert("Server is waking up. Please try again in 10 seconds.")
+    }
   }
 
-  const stored =
-    JSON.parse(
-      localStorage.getItem(`enrolledCourses_${currentUser}`)
-    ) || []
-
-  setEnrolledCourses(stored)
-}, [isLoggedIn])
-
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Navbar only after login */}
-      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-      <div className="p-6">
-        <Routes>
-          <Route
-            path="/"
-            element={<Navigate to={isLoggedIn ? "/courses" : "/login"} />}
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            className="w-full px-4 py-2 border rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
-          <Route
-            path="/login"
-            element={
-              isLoggedIn
-                ? <Navigate to="/courses" />
-                : <Login setIsLoggedIn={setIsLoggedIn} />
-            }
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            className="w-full px-4 py-2 border rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Route
-            path="/register"
-            element={
-              isLoggedIn
-                ? <Navigate to="/courses" />
-                : <Register />
-            }
-          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Login
+          </button>
+        </form>
 
-          <Route
-            path="/courses"
-            element={
-              isLoggedIn
-                ? <Courses />
-                : <Navigate to="/login" />
-            }
-          />
+        <p className="text-sm mt-4 text-center">
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">
+            Forgot Password?
+          </Link>
+        </p>
 
-          <Route
-            path="/courses/:id"
-            element={
-              isLoggedIn ? (
-                <CourseDetails
-                  enrolledCourses={enrolledCourses}
-                  setEnrolledCourses={setEnrolledCourses}
-                />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-
-          <Route
-            path="/my-courses"
-            element={
-              isLoggedIn
-                ? <MyCourses enrolledCourses={enrolledCourses} />
-                : <Navigate to="/login" />
-            }
-          />
-<Route path="/reset-password/:token" element={<ResetPassword />} />
-
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-        </Routes>
+        <p className="text-sm mt-2 text-center">
+          New user?{" "}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   )
 }
 
-export default App
+export default Login

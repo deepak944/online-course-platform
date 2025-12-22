@@ -1,37 +1,37 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+    e.preventDefault()
+    setLoading(true)
+    setMessage("")
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        `${API_URL}/api/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        }
+      )
 
-      const data = await res.json();
-      setMessage(
-        data.message ||
-          "If the email exists, a reset link has been sent."
-      );
-    } catch {
-      setMessage("Server is waking up. Please retry in 10 seconds.");
-    } finally {
-      setLoading(false);
+      const data = await res.json()
+      setMessage(data.message || "If the email exists, a reset link has been sent.")
+    } catch (err) {
+      setMessage("Server is waking up. Please try again.")
     }
-  };
+
+    setLoading(false)
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -55,7 +55,7 @@ function ForgotPassword() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded disabled:opacity-50"
+          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded"
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
@@ -74,7 +74,7 @@ function ForgotPassword() {
         </p>
       </form>
     </div>
-  );
+  )
 }
 
-export default ForgotPassword;
+export default ForgotPassword
