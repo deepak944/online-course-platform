@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -11,36 +9,28 @@ function Login({ setIsLoggedIn }) {
   const handleLogin = async (e) => {
     e.preventDefault()
 
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
+    const res = await fetch("http://127.0.0.1:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
 
-      const data = await res.json()
+    const data = await res.json()
 
-      if (!res.ok) {
-        alert(data.message || "Invalid email or password")
-        return
-      }
-
-      localStorage.setItem("token", data.access_token)
-      localStorage.setItem("currentUser", email)
-
-      const userCourses =
-        JSON.parse(localStorage.getItem(`enrolledCourses_${email}`)) || []
-
-      localStorage.setItem(
-        "currentEnrolledCourses",
-        JSON.stringify(userCourses)
-      )
-
-      setIsLoggedIn(true)
-      navigate("/courses")
-    } catch (err) {
-      alert("Server is waking up. Please try again in 10 seconds.")
+    if (!res.ok) {
+      alert(data.message || "Invalid email or password")
+      return
     }
+
+    localStorage.setItem("token", data.access_token)
+    localStorage.setItem("currentUser", email)
+ const userCourses =
+    JSON.parse(localStorage.getItem(`enrolledCourses_${email}`)) || []
+
+  // store temp (App.jsx will read it)
+  localStorage.setItem("currentEnrolledCourses", JSON.stringify(userCourses))
+    setIsLoggedIn(true)
+    navigate("/courses")
   }
 
   return (

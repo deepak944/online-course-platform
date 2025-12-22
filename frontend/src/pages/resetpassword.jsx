@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function ResetPassword() {
   const { token } = useParams()
   const navigate = useNavigate()
@@ -12,15 +10,16 @@ function ResetPassword() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
 
+  // 🔐 Verify token when page loads
   useEffect(() => {
-    fetch(`${API_URL}/api/auth/reset-password/${token}`)
+    fetch(`http://127.0.0.1:5000/api/auth/reset-password/${token}`)
       .then(res => {
-        if (!res.ok) throw new Error()
+        if (!res.ok) throw new Error("Invalid or expired link")
         return res.json()
       })
       .then(() => setLoading(false))
       .catch(() => {
-        setError("Server may be waking up. Please refresh and try again.")
+        setError("Reset link is invalid or expired")
         setLoading(false)
       })
   }, [token])
@@ -33,21 +32,22 @@ function ResetPassword() {
       return
     }
 
-    try {
-      const res = await fetch(`${API_URL}/api/auth/update-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, new_password: password })
+    const res = await fetch("http://127.0.0.1:5000/api/auth/update-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        token,
+        new_password: password
       })
+    })
 
-      if (res.ok) {
-        alert("Password updated successfully")
-        navigate("/login")
-      } else {
-        setError("Failed to update password")
-      }
-    } catch {
-      setError("Server error. Try again.")
+    if (res.ok) {
+      alert("Password updated successfully")
+      navigate("/login")
+    } else {
+      setError("Failed to update password")
     }
   }
 

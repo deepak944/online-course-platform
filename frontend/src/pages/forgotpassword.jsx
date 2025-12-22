@@ -1,12 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function ForgotPassword() {
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
+
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -16,18 +15,20 @@ function ForgotPassword() {
 
     try {
       const res = await fetch(
-        `${API_URL}/api/auth/forgot-password`,
+        "http://127.0.0.1:5000/api/auth/forgot-password",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ email })
         }
       )
 
       const data = await res.json()
-      setMessage(data.message || "If the email exists, a reset link has been sent.")
+      setMessage(data.message)
     } catch (err) {
-      setMessage("Server is waking up. Please try again.")
+      setMessage("Something went wrong. Please try again.")
     }
 
     setLoading(false)
@@ -43,6 +44,11 @@ function ForgotPassword() {
           Forgot Password
         </h2>
 
+        <p className="text-sm text-gray-300 mb-4 text-center">
+          Enter your registered email.  
+          If it exists, you will receive a reset link.
+        </p>
+
         <input
           type="email"
           placeholder="Email address"
@@ -55,7 +61,7 @@ function ForgotPassword() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded disabled:opacity-50"
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
