@@ -5,7 +5,7 @@ function ForgotPassword() {
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -15,7 +15,8 @@ function ForgotPassword() {
 
     try {
       const res = await fetch(
-        "http://127.0.0.1:5000/api/auth/forgot-password",
+        `${API_URL}/api/auth/forgot-password`
+,
         {
           method: "POST",
           headers: {
