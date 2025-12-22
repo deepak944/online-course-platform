@@ -21,7 +21,7 @@ function ResetPassword() {
       })
       .then(() => setLoading(false))
       .catch(() => {
-        setError("Reset link is invalid or expired");
+        setError("Server may be waking up please refresh and try again");
         setLoading(false);
       });
   }, [token]);

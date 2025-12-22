@@ -1,39 +1,37 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function ForgotPassword() {
-  const [email, setEmail] = useState("")
-  const [message, setMessage] = useState("")
-  const [loading, setLoading] = useState(false)
-  const API_URL = import.meta.env.VITE_API_URL;
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage("")
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
-      const res = await fetch(
-        `${API_URL}/api/auth/forgot-password`
-,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ email })
-        }
-      )
+      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-      const data = await res.json()
-      setMessage(data.message)
-    } catch (err) {
-      setMessage("Something went wrong. Please try again.")
+      const data = await res.json();
+      setMessage(
+        data.message ||
+          "If the email exists, a reset link has been sent."
+      );
+    } catch {
+      setMessage("Server is waking up. Please retry in 10 seconds.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false)
-  }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -44,11 +42,6 @@ function ForgotPassword() {
         <h2 className="text-2xl font-bold mb-4 text-center">
           Forgot Password
         </h2>
-
-        <p className="text-sm text-gray-300 mb-4 text-center">
-          Enter your registered email.  
-          If it exists, you will receive a reset link.
-        </p>
 
         <input
           type="email"
@@ -81,7 +74,7 @@ function ForgotPassword() {
         </p>
       </form>
     </div>
-  )
+  );
 }
 
-export default ForgotPassword
+export default ForgotPassword;
