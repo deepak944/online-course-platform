@@ -1,9 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from datetime import datetime, timedelta
 import secrets
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from models import db
 from models.user import User
@@ -141,6 +141,9 @@ def forgot_password():
 # ---------------- VERIFY RESET TOKEN ----------------
 @auth_bp.route("/reset-password/<token>", methods=["GET"])
 def verify_reset_token(token):
+    # ensure any percent-encoding is decoded before lookup
+    token = unquote(token)
+
     reset_token = PasswordResetToken.query.filter_by(
         token=token,
         used=False
@@ -163,6 +166,9 @@ def update_password():
     if not token or not new_password:
         return jsonify({"message": "Token and new password required"}), 400
 
+    # decode token in case frontend sent an encoded value
+    token = unquote(token)
+
     reset_token = PasswordResetToken.query.filter_by(
         token=token,
         used=False
@@ -172,9 +178,19 @@ def update_password():
         return jsonify({"message": "Invalid or expired token"}), 400
 
     user = User.query.get(reset_token.user_id)
+
+    # log before/after for debugging
+    current_app.logger.info(f"Reset token id={reset_token.id} for user_id={reset_token.user_id}")
+    current_app.logger.info(f"Old password hash: {user.password}")
+
     user.password = generate_password_hash(new_password)
+
+    # verify hashing works as expected
+    from werkzeug.security import check_password_hash as _check
+    ok = _check(user.password, new_password)
+    current_app.logger.info(f"New password hash set, verification ok={ok}")
 
     reset_token.used = True
     db.session.commit()
 
-    return jsonify({"message": "Password updated successfully"}), 200
+    return jsonify({"message": "Password updated successfully", "email": user.email}), 200

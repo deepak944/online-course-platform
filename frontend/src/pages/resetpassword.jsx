@@ -44,6 +44,19 @@ function ResetPassword() {
     })
 
     if (res.ok) {
+      const data = await res.json()
+      // clear enrolled courses stored in localStorage for this user
+      try {
+        if (data.email) {
+          localStorage.removeItem(`enrolledCourses_${data.email}`)
+          localStorage.removeItem("currentEnrolledCourses")
+          // also clear currentUser to force fresh login
+          localStorage.removeItem("currentUser")
+        }
+      } catch (e) {
+        console.warn("Failed to clear localStorage after password reset", e)
+      }
+
       alert("Password updated successfully")
       navigate("/login")
     } else {
@@ -55,7 +68,7 @@ function ResetPassword() {
   if (error) return <p className="text-center text-red-500 mt-10">{error}</p>
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-gray-800 p-6 rounded-lg w-96 text-white"
