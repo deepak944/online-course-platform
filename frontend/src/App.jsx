@@ -11,7 +11,8 @@ import MyCourses from "./pages/mycourses"
 import Navbar from "./components/navbar"
 import ForgotPassword from "./pages/forgotpassword"
 import ResetPassword from "./pages/resetpassword"
-
+import "./index.css"
+import Pay from "./pages/pay"
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -90,6 +91,7 @@ useEffect(() => {
               )
             }
           />
+<Route path="/pay/:courseId" element={<Pay />} />
 
           <Route
             path="/my-courses"

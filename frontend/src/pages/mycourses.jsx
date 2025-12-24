@@ -1,7 +1,29 @@
-function MyCourses({ enrolledCourses }) {
+import courses from "../data/courses"
+import { useEffect, useState } from "react"
+
+function MyCourses() {
+  const [enrolledCourses, setEnrolledCourses] = useState([])
+
+  useEffect(() => {
+    const user = localStorage.getItem("currentUser")
+    if (!user) return
+
+    // get enrolled course IDs
+    const enrolledIds =
+      JSON.parse(localStorage.getItem(`enrolledCourses_${user}`)) || []
+
+    // map IDs to full course objects
+    const enrolledCourseObjects = courses.filter(course =>
+      enrolledIds.includes(course.id)
+    )
+
+    setEnrolledCourses(enrolledCourseObjects)
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-6">
       <div className="max-w-6xl mx-auto">
+
         {/* Page Title */}
         <h2 className="text-3xl font-bold text-gray-800 mb-8">
           My Courses
@@ -23,17 +45,17 @@ function MyCourses({ enrolledCourses }) {
             {enrolledCourses.map(course => (
               <div
                 key={course.id}
-                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition"
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition flex flex-col"
               >
                 <h3 className="text-xl font-semibold text-gray-800 mb-3">
                   {course.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-600 text-sm mb-6">
                   {course.description}
                 </p>
 
-                <div className="mt-auto inline-block bg-green-100 text-green-700 px-4 py-2 rounded-md text-sm font-medium">
+                <div className="mt-auto inline-block bg-green-100 text-green-700 px-4 py-2 rounded-md text-sm font-medium w-fit">
                   ✅ Enrolled
                 </div>
               </div>

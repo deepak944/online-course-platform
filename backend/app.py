@@ -1,15 +1,17 @@
-import os
+# 🔴 MUST be at the very top
 from dotenv import load_dotenv
-from utils.email import send_email
+load_dotenv()
+
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+
 from config import Config
 from models import db
 from routes.auth_routes import auth_bp
 from routes.enroll_routes import enroll_bp
-load_dotenv()
-
+from utils.email import send_email
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -21,6 +23,7 @@ jwt = JWTManager(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(enroll_bp)
 
+
 @app.route("/test-email")
 def test_email():
     send_email(
@@ -30,14 +33,18 @@ def test_email():
     )
     return "Email sent"
 
+
 @app.route("/")
 def home():
     return jsonify({"message": "Backend running"})
+
+
 @app.route("/forgot-password", methods=["POST"])
 def forgot_password():
     return jsonify({
         "message": "If the email exists, a reset link has been sent"
     }), 200
+
 
 if __name__ == "__main__":
     with app.app_context():

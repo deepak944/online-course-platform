@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 
 function ResetPassword() {
   const { token } = useParams()
+  
   const navigate = useNavigate()
 
   const [password, setPassword] = useState("")
@@ -46,16 +47,7 @@ function ResetPassword() {
     if (res.ok) {
       const data = await res.json()
       // clear enrolled courses stored in localStorage for this user
-      try {
-        if (data.email) {
-          localStorage.removeItem(`enrolledCourses_${data.email}`)
-          localStorage.removeItem("currentEnrolledCourses")
-          // also clear currentUser to force fresh login
-          localStorage.removeItem("currentUser")
-        }
-      } catch (e) {
-        console.warn("Failed to clear localStorage after password reset", e)
-      }
+      
 
       alert("Password updated successfully")
       navigate("/login")
